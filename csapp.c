@@ -499,6 +499,9 @@ FILE *Fdopen(int fd, const char *type)
     return fp;
 }
 
+/**************************
+ * STREAM에서 줄바꿈으로 끝나는 유한 길이의 문자열을 가져옵니다.
+***************************/
 char *Fgets(char *ptr, int n, FILE *stream) 
 {
     char *rptr;
@@ -519,6 +522,9 @@ FILE *Fopen(const char *filename, const char *mode)
     return fp;
 }
 
+/**************************
+ * STREAM에 문자열을 씁니다.
+***************************/
 void Fputs(const char *ptr, FILE *stream) 
 {
     if (fputs(ptr, stream) == EOF)
@@ -578,6 +584,10 @@ void Listen(int s, int backlog)
 	unix_error("Listen error");
 }
 
+/*
+ accept 함수는 클라이언트로부터의 연결 요청이 듣기 식별자 listenfd 에 도달하기를 기다립니다.
+그 후에 addr 내의 클라이언트의 소켓 주소를 채우고 Unix I/O 함수들을 사용해서 클라이언트와 통신하기 위해 사용될 수 있는 연결 식별자를 리턴합니다.
+*/
 int Accept(int s, struct sockaddr *addr, socklen_t *addrlen) 
 {
     int rc;
@@ -896,6 +906,11 @@ ssize_t rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen)
 /**********************************
  * Wrappers for robust I/O routines
  **********************************/
+
+/**********************************
+ * 식별자 fd의 현재 파일 위치에서 메모리 위치 usrbuf로 최대 n 바이트를 전송합니다.
+ * EOF를 만나면 짧은 카운트만을 리턴합니다.
+ **********************************/
 ssize_t Rio_readn(int fd, void *ptr, size_t nbytes) 
 {
     ssize_t n;
@@ -905,12 +920,21 @@ ssize_t Rio_readn(int fd, void *ptr, size_t nbytes)
     return n;
 }
 
+/**********************************
+ * usrbuf에서 식별자 fd로 n 바이트를 전송합니다.
+ * 절대로 짧은 카운트를 리턴하지 않습니다.
+ **********************************/
 void Rio_writen(int fd, void *usrbuf, size_t n) 
 {
     if (rio_writen(fd, usrbuf, n) != n)
 	unix_error("Rio_writen error");
 }
 
+/*
+* rio_readinitb 함수는 식별자 fd를 주소 rp에 위치한 rio_t 타입의 읽기 버퍼와 연결합니다.
+* 특정 파일 디스크립터에 대한 버퍼링된 입력을 사용할 수 있도록 준비합니다.
+* 이 함수는 rio 구조체를 초기화하고, 파일 디스크립터 'clientfd'와 연결하여 사용할 준비를 합니다.
+*/
 void Rio_readinitb(rio_t *rp, int fd)
 {
     rio_readinitb(rp, fd);
@@ -925,6 +949,10 @@ ssize_t Rio_readnb(rio_t *rp, void *usrbuf, size_t n)
     return rc;
 }
 
+/*
+rio_readlineb는 다음 텍스트 줄을 파일 rp에서 읽고, 이것을 메모리 위치 usrbuf로 복사한 뒤 텍스트 라인을 널(0) 문자로 종료시킵니다.
+최대 maxlen-1개의 바이트를 읽으며, 종료용 널 문자를 위한 공간을 남겨둡니다.
+*/ 
 ssize_t Rio_readlineb(rio_t *rp, void *usrbuf, size_t maxlen) 
 {
     ssize_t rc;
@@ -1045,6 +1073,9 @@ int open_listenfd(char *port)
 
 /****************************************************
  * Wrappers for reentrant protocol-independent helpers
+ * 클라이언트는 open_clientfd를 호출해서 서버와의 연결을 설정합니다.
+ * 호스트의 hostname에서 돌아가고, 포트번호 port에 연결 요청을 듣는 서버와 연결을 설정합니다.
+ * 그 결과로 반환되는 파일 디스크립터를 반환합니다.
  ****************************************************/
 int Open_clientfd(char *hostname, char *port) 
 {
@@ -1055,6 +1086,8 @@ int Open_clientfd(char *hostname, char *port)
     return rc;
 }
 
+// 서버는 open_listenfd 함수를 호출해서 연결 요청을 받을 준비가 된 듣기 식별자를 생성합니다.
+// 그리고 포트에 연결 요청을 받을 준비가 된 듣기 식별자를 리턴합니다.
 int Open_listenfd(char *port) 
 {
     int rc;
