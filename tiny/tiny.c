@@ -192,11 +192,14 @@ void serve_static(int fd, char *filename, int filesize)
   요청한 파일의 내용을 연결 식별자 fd로 복사해서 응답 본체로 보냄.
   주의 깊게 봐야 함 */
   srcfd = Open(filename, O_RDONLY, 0);  // 읽기 위해 filename을 open하고 식별자를 얻어옴
-  srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);   // 리눅스 mmap 함수는 요청한 파일을 가상메모리 영역에 매핑함
+  srcp = (char *)Malloc(filesize);      // malloc 기본형. char = 1byte.
+  // srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);   // 리눅스 mmap 함수는 요청한 파일을 가상메모리 영역에 매핑함
   // mmap을 호출하면 파일 srcfd의 첫 번째 filesize 바이트 주소 srcp에서 시작하는 사적 읽기-허용 가상메모리 영역으로 매핑함
+  Rio_readn(srcfd, srcp, filesize);     // 파일 식별자를 통해 가상 메모리에 파일을 파일사이즈 만큼을 매핑.
   Close(srcfd);                         // 파일을 메모리로 매핑한 후에 더 이상 식별자가 필요없으므로 파일을 닫음(메모리 누수 방지)
   Rio_writen(fd, srcp, filesize);       // 파일을 클라이언트로 전송, 주소 srcp에서 시작하는 filesize 바이트를 클라이언트의 연결 식별자로 복사
-  Munmap(srcp, filesize);               // 매핑된 가상메모리 주소를 반환(메모리 누수 방지)
+  free(srcp);
+  // Munmap(srcp, filesize);               // 매핑된 가상메모리 주소를 반환(메모리 누수 방지)
 }
 
 /**************************************
@@ -208,6 +211,8 @@ void get_filetype(char *filename, char *filetype)
     strcpy(filetype, "text/html");
   else if (strstr(filename, ".gif"))
     strcpy(filetype, "image/gif");
+  else if (strstr(filename, ".mp4"))
+    strcpy(filetype, "image/mp4");
   else if (strstr(filename, ".jpg"))
     strcpy(filetype, "image/jpeg");
   else if (strstr(filename, ".png"))
