@@ -607,8 +607,12 @@ void Getaddrinfo(const char *node, const char *service,
     if ((rc = getaddrinfo(node, service, hints, res)) != 0) 
         gai_error(rc, "Getaddrinfo error");
 }
+
 /* $end getaddrinfo */
 
+/******************************
+ * getaddrinfo의 역, 소켓 주소 구조체를 대응되는 호스트와 서비스이름 스트링으로 변환한다.
+ * ****************************/
 void Getnameinfo(const struct sockaddr *sa, socklen_t salen, char *host, 
                  size_t hostlen, char *serv, size_t servlen, int flags)
 {

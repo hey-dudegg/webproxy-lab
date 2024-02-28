@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
 
   /* Check command line args */
   if (argc != 2) { 
+    /* fprintf(). 스트림에 형식화된 데이터 쓰기. 일련의문자와 값을 형식화하여 출력 stream에 쓴다. */
     fprintf(stderr, "usage: %s <port>\n", argv[0]);
     exit(1);
   }
@@ -41,6 +42,7 @@ int main(int argc, char **argv) {
     Close(connfd);  // line:netp:tiny:close
   }
 }
+
 
 /*******************************
  * 한 개의 HTTP 트랜잭션을 처리합니다.
@@ -132,8 +134,8 @@ void read_requesthdrs(rio_t *rp)
   Rio_readlineb(rp, buf, MAXLINE);
   while (strcmp(buf, "\r\n"))           // 요청 헤더를 종료하는 빈 텍스트 줄
   {
-    Rio_readlineb(rp, buf, MAXLINE);
     printf("%s", buf);
+    Rio_readlineb(rp, buf, MAXLINE);
   }
   return;
 }
