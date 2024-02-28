@@ -55,7 +55,7 @@ void doit(int fd)
 
    /* Read request line and headers */
   Rio_readinitb(&rio, fd); 
-  Rio_readlineb(&rio, buf, MAXLINE);                  // 요청라인을 읽고 분석합니다. Tiny는 GET 메소드만 지원합니다.
+  Rio_readlineb(&rio, buf, MAXLINE);                  // 요청라인3.0을 읽고 분석합니다. Tiny는 GET 메소드만 지원합니다.
   printf("Request headers:\n");
   printf("%s", buf);
   sscanf(buf, "%s %s %s", method, uri, version);

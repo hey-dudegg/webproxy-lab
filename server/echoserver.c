@@ -1,18 +1,6 @@
 #include "csapp.h"
 
-// echo 함수는 rio_readlineb 함수가 EOF를 만날 때까지 텍스트 줄을 반복해서 읽고 써줍니다.
-void echo(int connfd){                  // 연결 식별자를 받습니다.
-    size_t n;
-    char buf[MAXLINE];
-    rio_t rio;
-
-    Rio_readinitb(&rio, connfd);                // open한 식별자마다 한 번 호출합니다. 
-    while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0){    // text line을 안전하게 읽습니다. 
-        printf("server received : %d bytes\n", (int)n);
-        printf("received message : %s", buf);   // 래퍼 함수로 내부 읽기 버퍼에 복사한 텍스트 라인을 읽어옴
-        Rio_writen(connfd, buf, n);             // usrbuf 에서 식별자 fd로 n 바이트를 전송합니다.
-    }
-}
+void echo(int connfd);
 
 int main(int argc, char **argv){
     int listenfd, connfd;                       // 듣기 식별자와 연결 식별자
@@ -41,6 +29,20 @@ int main(int argc, char **argv){
     }
     exit(0);
 }
+
+// echo 함수는 rio_readlineb 함수가 EOF를 만날 때까지 텍스트 줄을 반복해서 읽고 써줍니다.
+void echo(int connfd){                  // 연결 식별자를 받습니다.
+    size_t n;
+    char buf[MAXLINE];
+    rio_t rio;
+
+    Rio_readinitb(&rio, connfd);                // open한 식별자마다 한 번 호출합니다. 
+    while((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0){    // text line을 안전하게 읽습니다. 
+        printf("server received : %d bytes\n", (int)n);
+        printf("received message : %s", buf);   // 래퍼 함수로 내부 읽기 버퍼에 복사한 텍스트 라인을 읽어옴
+        Rio_writen(connfd, buf, n);             // usrbuf 에서 식별자 fd로 n 바이트를 전송합니다.
+    }
+}
 /*
  * 듣기 식별자는 클라이언트 연결 요청에 대해 끝점으로서의 역할을 합니다.
  한번 생성되며 서버가 살아있는 동안 계속 존재합니다.
@@ -59,4 +61,5 @@ int main(int argc, char **argv){
  * RIO I/O (Robust I/O)는 짧은 카운트가 발생할 수 있는 네트워크 프로그램에서 자동 처리하여 안정적이고
  효율적인 I/O를 제공합니다. 두 가지의 서로 다른 종류의 함수를 제공합니다.
  -> 버퍼 없는 입력 및 출력 함수 / 버퍼를 사용하는 입력 함수
+ * SA(sockaddr) 는 어떠한 소켓 주소 구조체라도 받을 수 있는 타입.
 */
